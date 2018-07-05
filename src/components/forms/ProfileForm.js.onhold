@@ -1,0 +1,131 @@
+import React from "react";
+import PropTypes from "prop-types";
+import { Form, Button, Message } from "semantic-ui-react";
+import Validator from  "validator";
+import InlineError from "../messages/InlineError";
+
+class ProfileForm extends React.Component {
+	state = {
+		data: {
+			email: '',
+			username: '',
+			password: ''
+		},
+		loading: false,
+		errors: {
+			global: ''
+		}
+	}
+
+	onChange = e => 
+		this.setState({ 
+			data :  { ...this.state.data, [e.target.name]: e.target.value}
+		});
+
+	onSubmit = () => {
+		const errors = this.validate(this.state.data);
+		this.setState ({ errors });
+		if (Object.keys(errors).length === 0) {
+     	    this.setState({ loading: true });
+			this.props
+				.submit(this.state.data)
+				.catch(() => this.setState({ global : "Invalid Credentials", loading: false }));
+		}
+	};
+
+
+	validate = (data) => {
+		const errors = {};
+		if (!Validator.isEmail(data.username)) errors.username = "User must be a valid email address from your company";
+		if (!data.password) errors.password = "Can't be blank";
+		return errors;
+	}
+
+	render() {
+		const { data, errors } = this.state;
+		return (
+		<Form className="ui form" onSubmit={this.onSubmit}>
+				{ errors.global && (
+					<Message negative>
+					<Message.Header> Something went wrong</Message.Header>
+					 <p>{ errors.global }</p>
+					</Message>
+				)}
+			<div className="ui form">
+			  <h4 className="ui dividing header">Personal Address</h4>
+				  <div className="field">
+				    Name
+				    <div className="two fields">
+				      <div className="field">
+				        <input 
+				        	type="text" 
+				        	name="firstName" 
+				        	placeholder="First Name" 
+				        	value={data.firstName}
+				        />
+				      </div>
+				      <div className="field">
+				        <input 
+				        	type="text" 
+				        	name="lastName" 
+				        	placeholder="Last Name"
+				        	value={data.lastName} 
+				        />
+				      </div>
+				    </div>
+				  </div>
+				  <div className="field">
+				    Home Address
+				    <div className="fields">
+				      <div className="twelve wide field">
+				        <input 
+				        	type="text" 
+				        	name="address" 
+				        	placeholder="Street Address" 
+				        	value = {data.address}
+				        />
+				      </div>
+				      <div className="four wide field">
+				        <input 
+				        	type="text" 
+				        	name="shipping[address-2]" 
+				        	placeholder="Apt #" />
+				      </div>
+				    </div>
+				  </div>
+				<Form.Field error={!!errors.email}>
+					<label htmlFor="email">Email</label>
+					<input 
+						type="email" 
+						id="email" 
+						name="username" 
+						placeholder="example@example.com" 
+						value= {data.username}
+						onChange={this.onChange}
+					/>
+					{errors.email && <InlineError text= {errors.email} />}
+				</Form.Field>
+				<Form.Field error={!!errors.password}>
+					<label htmlFor="password">Password</label>
+					<input 
+						type="password" 
+						id="password" 
+						name="password" 
+						placeholder="Choose a Secret One" 
+						value= {data.password}
+						onChange={this.onChange}
+					/>
+					{ errors.password && <InlineError text= {errors.password} />}
+				</Form.Field>
+			</div>
+			<Button primary>Update</Button>
+			</Form>
+		);
+	}
+}
+
+ProfileForm.propTypes = {
+	submit: PropTypes.func.isRequired
+};
+
+export default ProfileForm;

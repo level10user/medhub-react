@@ -1,0 +1,30 @@
+import React from "react";
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import ProfileForm from "../forms/ProfileForm";
+import { profile } from "../../actions/auth";
+
+class ProfilePage extends React.Component {
+	submit = data => 
+		this.props.token(data).then(() => this.props.history.push("/profile"));
+//	submit = () =>
+//		this.props.history.push('/portal');
+
+
+	render() {
+		return (
+			<div>
+				<ProfileForm submit={this.submit}/>
+			</div>
+		);
+	}
+}
+
+ProfilePage.propTypes = {
+	history: PropTypes.shape ({
+		push: PropTypes.func.isRequired
+	}).isRequired,
+	token: PropTypes.func.isRequired
+};
+
+export default connect(null,{ profile })(ProfilePage);
